@@ -25,8 +25,13 @@ public class Shape {
     };
 
     private static final Color[] SHAPES_COLOR = {
-        new Color(245, 45, 65), Color.ORANGE, Color.YELLOW, Color.GREEN,
-        Color.CYAN, new Color(76, 181, 245), Color.PINK
+        new Color(245, 45, 65),  // Z
+        Color.ORANGE,            // L
+        Color.YELLOW,            // O
+        Color.GREEN,             // S
+        Color.CYAN,              // I
+        new Color(76, 181, 245), // J
+        Color.PINK               // T
     };
 
     private static final Random rand = new Random();

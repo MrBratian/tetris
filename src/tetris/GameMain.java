@@ -72,8 +72,9 @@ public class GameMain extends JFrame {
         });
         timer.start();
 
-        setSize(Matrix.COLS * Shape.CELL_SIZE + 150, Matrix.ROWS * Shape.CELL_SIZE + 100);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        pack();                        // Ajusta tamaño automático
+        setLocationRelativeTo(null);  // Centra la ventana
         setVisible(true);
 
         matrix.newGame();
@@ -87,6 +88,7 @@ public class GameMain extends JFrame {
                 super.paintComponent(g);
                 matrix.paint(g);
             }
+
             @Override
             public Dimension getPreferredSize() {
                 return new Dimension(Matrix.COLS * Shape.CELL_SIZE,
