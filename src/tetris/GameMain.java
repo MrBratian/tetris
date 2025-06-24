@@ -1,16 +1,20 @@
 package tetris;
 
+import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import javax.swing.*;
-import javax.swing.Timer;
 
 public class GameMain extends JFrame {
     private Matrix matrix;
     private ScoreBoard scoreBoard;
     private HoldBox holdBox;
+    private JButton startButton;
+    private JButton retryButton;
+    private JPanel mainPanel;
+    private boolean paused = false;
+    private JLabel pauseLabel;
+    private State state = State.INITIALIZED;
     private boolean canHold = true;
-    private State state;
 
     public GameMain() {
         super("Tetris - Hold & Accumulación");
@@ -19,13 +23,45 @@ public class GameMain extends JFrame {
         scoreBoard = new ScoreBoard();
         holdBox = new HoldBox();
 
-        setLayout(new BorderLayout());
-        add(scoreBoard, BorderLayout.NORTH);
-        add(matrixPanel(), BorderLayout.CENTER);
-        add(holdBoxPanel(), BorderLayout.EAST);
+        mainPanel = new JPanel(new BorderLayout());
+        mainPanel.add(scoreBoard, BorderLayout.NORTH);
+        mainPanel.add(matrixPanel(), BorderLayout.CENTER);
+        mainPanel.add(holdBoxPanel(), BorderLayout.EAST);
 
+        add(mainPanel, BorderLayout.CENTER);
+
+        startButton = new JButton("Iniciar Juego");
+        startButton.setFont(new Font("SansSerif", Font.BOLD, 16));
+        startButton.addActionListener(e -> {
+            matrix.newGame();
+            scoreBoard.reset();
+            holdBox.clear();
+            state = State.PLAYING;
+            canHold = true;
+            mainPanel.remove(startButton);
+            mainPanel.revalidate();
+            mainPanel.repaint();
+            requestFocusInWindow();
+        });
+        mainPanel.add(startButton, BorderLayout.SOUTH);
+
+        
+        
         addKeyListener(new KeyAdapter() {
             public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
+                    if (state == State.PLAYING) {
+                        paused = true;
+                        state = State.READY;
+                        showPauseOverlay(true);
+                    } else if (state == State.READY && paused) {
+                        paused = false;
+                        state = State.PLAYING;
+                        showPauseOverlay(false);
+                    }
+                    return;
+                }
+
                 if (state != State.PLAYING) return;
 
                 Action action = null;
@@ -45,6 +81,7 @@ public class GameMain extends JFrame {
                         }
                         return;
                 }
+
                 if (action != null) {
                     boolean atBottom = matrix.stepGame(action);
                     if (atBottom) {
@@ -54,8 +91,10 @@ public class GameMain extends JFrame {
                         matrix.shape = Shape.newShape();
                         if (matrix.isGameOver()) {
                             state = State.GAMEOVER;
-                            JOptionPane.showMessageDialog(null, "¡Game Over!");
+                            retryButton.setVisible(true);
+                            repaint();
                         }
+
                     }
                     repaint();
                 }
@@ -84,66 +123,68 @@ public class GameMain extends JFrame {
         pack();
         setLocationRelativeTo(null);
         setVisible(true);
-
-        matrix.newGame();
-        state = State.PLAYING;
     }
 
     private JPanel matrixPanel() {
-        JPanel p = new JPanel() {
-            @Override
+        JPanel panel = new JPanel() {
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
                 matrix.paint(g);
             }
-
-            @Override
-            public Dimension getPreferredSize() {
-                return new Dimension(Matrix.COLS * Shape.CELL_SIZE,
-                                     Matrix.ROWS * Shape.CELL_SIZE);
-            }
         };
-        return p;
+        panel.setPreferredSize(new Dimension(Matrix.COLS * Shape.CELL_SIZE, Matrix.ROWS * Shape.CELL_SIZE));
+        return panel;
     }
 
     private JPanel holdBoxPanel() {
-    JPanel panel = new JPanel();
-    panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
 
-    JLabel label = new JLabel("Hold Piece");
-    label.setAlignmentX(Component.CENTER_ALIGNMENT);
-    panel.add(label);
+        JLabel label = new JLabel("Hold Piece");
+        label.setAlignmentX(Component.CENTER_ALIGNMENT);
+        panel.add(label);
 
-    holdBox.setAlignmentX(Component.CENTER_ALIGNMENT);
-    panel.add(holdBox);
+        holdBox.setAlignmentX(Component.CENTER_ALIGNMENT);
+        panel.add(holdBox);
 
-    panel.add(Box.createVerticalStrut(10)); // Espaciado
+        panel.add(Box.createVerticalStrut(10));
 
-    // CONTROLES
-    JPanel controlPanel = new JPanel();
-    controlPanel.setLayout(new BoxLayout(controlPanel, BoxLayout.Y_AXIS));
-    controlPanel.setBorder(BorderFactory.createTitledBorder("Controles"));
+        JPanel controlPanel = new JPanel();
+        controlPanel.setLayout(new BoxLayout(controlPanel, BoxLayout.Y_AXIS));
+        controlPanel.setBorder(BorderFactory.createTitledBorder("Controles"));
 
-    controlPanel.add(new JLabel("← →: Mover"));
-    controlPanel.add(new JLabel("↓   : Bajar"));
-    controlPanel.add(new JLabel("↑   : Rotar"));
-    controlPanel.add(new JLabel("Espacio: Caída rápida"));
-    controlPanel.add(new JLabel("Shift: Cambiar ficha"));
+        controlPanel.add(new JLabel("← / →  : Mover"));
+        controlPanel.add(new JLabel("↓       : Bajar"));
+        controlPanel.add(new JLabel("↑       : Rotar"));
+        controlPanel.add(new JLabel("ESPACIO: Caída rápida"));
+        controlPanel.add(new JLabel("SHIFT   : Cambiar ficha"));
 
-    for (Component comp : controlPanel.getComponents()) {
-        if (comp instanceof JLabel) {
-            ((JLabel) comp).setFont(new Font("Monospaced", Font.PLAIN, 12));
+        for (Component comp : controlPanel.getComponents()) {
+            if (comp instanceof JLabel) {
+                ((JLabel) comp).setFont(new Font("Monospaced", Font.PLAIN, 12));
+            }
         }
+
+        panel.add(controlPanel);
+        panel.setPreferredSize(new Dimension(200, 260));
+        return panel;
     }
 
-    panel.add(controlPanel);
-    panel.setPreferredSize(new Dimension(200, 260));
-
-    return panel;
+    private void showPauseOverlay(boolean show) {
+        if (pauseLabel == null) {
+            pauseLabel = new JLabel("PAUSA", SwingConstants.CENTER);
+            pauseLabel.setFont(new Font("SansSerif", Font.BOLD, 36));
+            pauseLabel.setForeground(Color.RED);
+            pauseLabel.setOpaque(true);
+            pauseLabel.setBackground(new Color(0, 0, 0, 150));
+            pauseLabel.setBounds(0, 0, Matrix.COLS * Shape.CELL_SIZE, Matrix.ROWS * Shape.CELL_SIZE);
+            getLayeredPane().add(pauseLabel, JLayeredPane.POPUP_LAYER);
+        }
+        pauseLabel.setVisible(show);
+        requestFocusInWindow();
     }
-
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(GameMain::new);
+        new GameMain();
     }
 }

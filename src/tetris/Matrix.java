@@ -7,7 +7,7 @@ public class Matrix {
     public static final int ROWS = 20;
     public static final int COLS = 10;
     public static final int CELL_SIZE = Shape.CELL_SIZE;
-
+    
     private static final Color COLOR_OCCUPIED = Color.LIGHT_GRAY;
     private static final Color COLOR_EMPTY = Color.WHITE;
 

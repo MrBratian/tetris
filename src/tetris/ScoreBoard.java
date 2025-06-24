@@ -14,7 +14,13 @@ public class ScoreBoard extends JPanel {
         scoreLabel.setFont(new Font("Arial", Font.BOLD, 18));
         add(scoreLabel);
     }
+    
+    public void reset() {
+        score = 0;
+        repaint();
+    }
 
+    
     public void addScore(int linesCleared) {
         switch (linesCleared) {
             case 1: score += 100; break;

@@ -13,7 +13,13 @@ public class HoldBox extends JPanel {
         this.hasShape = (shape != null);
         repaint();
     }
+    
+    public void clear() {
+        heldShape = null;
+        repaint();
+    }
 
+    
     public Shape getHeldShape() {
         return heldShape;
     }
