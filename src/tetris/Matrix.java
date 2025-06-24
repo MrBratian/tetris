@@ -128,6 +128,22 @@ public class Matrix {
         }
         return linesCleared;
     }
+    
+    public boolean isGameOver() {
+    for (int r = 0; r < shape.rows; r++) {
+        for (int c = 0; c < shape.cols; c++) {
+            int matrixRow = shape.y + r;
+            int matrixCol = shape.x + c;
+            if (shape.map[r][c]) {
+                if (matrixRow >= 0 && map[matrixRow][matrixCol]) {
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
+    }
+
 
     public void paint(Graphics g) {
         for (int row = 0; row < ROWS; row++) {

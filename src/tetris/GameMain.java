@@ -52,6 +52,10 @@ public class GameMain extends JFrame {
                         scoreBoard.addScore(cleared);
                         canHold = true;
                         matrix.shape = Shape.newShape();
+                        if (matrix.isGameOver()) {
+                            state = State.GAMEOVER;
+                            JOptionPane.showMessageDialog(null, "¡Game Over!");
+                        }
                     }
                     repaint();
                 }
@@ -66,6 +70,10 @@ public class GameMain extends JFrame {
                     scoreBoard.addScore(cleared);
                     canHold = true;
                     matrix.shape = Shape.newShape();
+                    if (matrix.isGameOver()) {
+                        state = State.GAMEOVER;
+                        JOptionPane.showMessageDialog(null, "¡Game Over!");
+                    }
                 }
                 repaint();
             }
@@ -73,8 +81,8 @@ public class GameMain extends JFrame {
         timer.start();
 
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        pack();                        // Ajusta tamaño automático
-        setLocationRelativeTo(null);  // Centra la ventana
+        pack();
+        setLocationRelativeTo(null);
         setVisible(true);
 
         matrix.newGame();
