@@ -107,12 +107,41 @@ public class GameMain extends JFrame {
     }
 
     private JPanel holdBoxPanel() {
-        JPanel p = new JPanel(new BorderLayout());
-        p.add(new JLabel("Hold Piece"), BorderLayout.NORTH);
-        p.add(holdBox, BorderLayout.CENTER);
-        p.setPreferredSize(new Dimension(150, 150));
-        return p;
+    JPanel panel = new JPanel();
+    panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+
+    JLabel label = new JLabel("Hold Piece");
+    label.setAlignmentX(Component.CENTER_ALIGNMENT);
+    panel.add(label);
+
+    holdBox.setAlignmentX(Component.CENTER_ALIGNMENT);
+    panel.add(holdBox);
+
+    panel.add(Box.createVerticalStrut(10)); // Espaciado
+
+    // CONTROLES
+    JPanel controlPanel = new JPanel();
+    controlPanel.setLayout(new BoxLayout(controlPanel, BoxLayout.Y_AXIS));
+    controlPanel.setBorder(BorderFactory.createTitledBorder("Controles"));
+
+    controlPanel.add(new JLabel("← →: Mover"));
+    controlPanel.add(new JLabel("↓   : Bajar"));
+    controlPanel.add(new JLabel("↑   : Rotar"));
+    controlPanel.add(new JLabel("Espacio: Caída rápida"));
+    controlPanel.add(new JLabel("Shift: Cambiar ficha"));
+
+    for (Component comp : controlPanel.getComponents()) {
+        if (comp instanceof JLabel) {
+            ((JLabel) comp).setFont(new Font("Monospaced", Font.PLAIN, 12));
+        }
     }
+
+    panel.add(controlPanel);
+    panel.setPreferredSize(new Dimension(200, 260));
+
+    return panel;
+    }
+
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(GameMain::new);
